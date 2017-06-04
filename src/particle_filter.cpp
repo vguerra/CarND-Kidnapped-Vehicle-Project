@@ -24,6 +24,28 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
+  num_particles = 1000;
+
+  particles = std::vector<Particle>(num_particles);
+
+  std::default_random_engine generator;
+
+  std::normal_distribution<double> x_distribution(x, std[0]);
+  std::normal_distribution<double> y_distribution(y, std[1]);
+  std::normal_distribution<double> theta_distribution(theta, std[2]);
+
+  for (size_t p = 0; p < num_particles; ++p)
+  {
+    particles[p].id = p;
+    particles[p].x = x_distribution(generator);
+    particles[p].y = y_distribution(generator);
+    particles[p].theta = theta_distribution(generator);
+    particles[p].weight = 1.0;
+  }
+
+  weights = std::vector<double>(num_particles, 1.0);
+
+  is_initialized = true;
 
 }
 
@@ -92,6 +114,7 @@ string ParticleFilter::getAssociations(Particle best)
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
     return s;
 }
+
 string ParticleFilter::getSenseX(Particle best)
 {
 	vector<double> v = best.sense_x;
@@ -101,6 +124,7 @@ string ParticleFilter::getSenseX(Particle best)
     s = s.substr(0, s.length()-1);  // get rid of the trailing space
     return s;
 }
+
 string ParticleFilter::getSenseY(Particle best)
 {
 	vector<double> v = best.sense_y;
