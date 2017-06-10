@@ -123,17 +123,22 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
   for (auto& particle : particles) {
 
-//    // Landmarks in sensor range
-//    std::vector<Map::single_landmark_s> landmarks_within_range;
-//    landmarks_within_range.reserve(map_landmarks.landmark_list.size());
-//
-//    std::copy_if(map_landmarks.landmark_list.begin(),
-//                 map_landmarks.landmark_list.end(),
-//                 std::back_inserter(landmarks_within_range),
-//                 [&particle](const Map::single_landmark_s& landmark) {
-//                   return
-//
-//                 });
+    // Looking for Map landmarks in sensor range
+    std::vector<Map::single_landmark_s> landmarks_within_range;
+    landmarks_within_range.reserve(map_landmarks.landmark_list.size());
+
+    double max_x = particle.x + sensor_range;
+    double min_x = particle.x - sensor_range;
+    double max_y = particle.y + sensor_range;
+    double min_y = particle.y - sensor_range;
+
+    std::copy_if(map_landmarks.landmark_list.begin(),
+                 map_landmarks.landmark_list.end(),
+                 std::back_inserter(landmarks_within_range),
+                 [max_x, min_x, max_y, min_y](const Map::single_landmark_s& landmark) {
+                   return (landmark.x_f > min_x && landmark.x_f < max_x) &&
+                   (landmark.y_f > min_y && landmark.y_f < max_y);
+                 });
 
     // Transform observations first to map coordinates
     std::vector<LandmarkObs> transformed_observations(observations.size());
@@ -168,7 +173,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double best_x = 0.0;
       double best_y = 0.0;
 
-      for (auto landmark : map_landmarks.landmark_list) {
+      for (auto landmark : landmarks_within_range) {
         double distance = dist(transformed_observations[i].x, transformed_observations[i].y, landmark.x_f, landmark.y_f);
         if (distance < min_distance) {
           min_distance = distance;
