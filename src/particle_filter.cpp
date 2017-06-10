@@ -197,10 +197,9 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       double exponent = pow(observation.x - sense_x[i], 2.0)/(2*std_x_2) +
           pow(observation.y - sense_y[i], 2.0)/(2*std_y_2);
       double res = exp(-exponent);
-      particle_weight *= multivariate_factor*res;
+      particle_weight *= res;
     }
-
-    particle.weight = particle_weight;
+    particle.weight = pow(multivariate_factor, particle.associations.size())*particle_weight;
     weights[particle.id] = particle_weight;
   }
 }
