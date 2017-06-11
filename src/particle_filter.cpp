@@ -61,7 +61,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
   double std_y = std_pos[1];
   double std_theta = std_pos[2];
 
-  if (yaw_rate == 0) {
+  if (fabs(yaw_rate) < 0.00001) {
     // bicycle model with zero yaw_rate
     double factor = velocity * delta_t;
 
