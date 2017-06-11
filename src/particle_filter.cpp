@@ -24,7 +24,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
-  num_particles = 100;
+  num_particles = 50;
 
   particles = std::vector<Particle>(num_particles);
 
@@ -123,7 +123,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
   for (auto& particle : particles) {
 
-    // Looking for Map landmarks in sensor range
+    // Looking for Map landmarks in sensor range w.r.t this particle
     std::vector<Map::single_landmark_s> landmarks_within_range;
     landmarks_within_range.reserve(map_landmarks.landmark_list.size());
 
@@ -140,7 +140,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                    (landmark.y_f > min_y && landmark.y_f < max_y);
                  });
 
-    // Transform observations first to map coordinates
+    // Transform observations to map coordinates w.r.t to particle position in map.
     std::vector<LandmarkObs> transformed_observations(observations.size());
 
     std::transform(observations.begin(),
@@ -161,11 +161,11 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
                      return transformed_observation;
                    });
 
+    // Look for closest Map landmark for each transformed observation
     vector<int> associations(transformed_observations.size());
     vector<double> sense_x(transformed_observations.size());
     vector<double> sense_y(transformed_observations.size());
 
-    // Look for closest Map landmark for each transformed observation
     for (size_t i = 0; i < transformed_observations.size(); ++i) {
 
       double min_distance = std::numeric_limits<double>::max();;
@@ -190,6 +190,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
     particle = SetAssociations(particle, associations, sense_x, sense_y);
 
+    // Compute weight of particle using multiplication of multivariate-gaussian distributions
     double particle_weight = 1.0;
 
     for (size_t i = 0; i < particle.associations.size(); ++i) {
