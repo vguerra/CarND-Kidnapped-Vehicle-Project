@@ -24,7 +24,7 @@ void ParticleFilter::init(double x, double y, double theta, double std[]) {
 	//   x, y, theta and their uncertainties from GPS) and all weights to 1. 
 	// Add random Gaussian noise to each particle.
 	// NOTE: Consult particle_filter.h for more information about this method (and others in this file).
-  num_particles = 50;
+  num_particles = 100;
 
   particles = std::vector<Particle>(num_particles);
 
@@ -91,7 +91,6 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
     }
   }
 }
-
 
 void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::vector<LandmarkObs>& observations) {
 	// TODO: Find the predicted measurement that is closest to each observed measurement and assign the 
@@ -168,7 +167,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 
     for (size_t i = 0; i < transformed_observations.size(); ++i) {
 
-      double min_distance = std::numeric_limits<double>::max();;
+      double min_distance = std::numeric_limits<double>::max();
       int best_landmark_id = 0;
       double best_x = 0.0;
       double best_y = 0.0;
